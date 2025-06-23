@@ -1698,99 +1698,121 @@ const cgs = [{
         ]
     }
 ]
+const imageCache = new Map();
 
-let currentComic = null,
-    currentPanelIndex = 0;
+let currentComic = null, currentPanelIndex = 0;
 
 const box = document.getElementById("comic-holder"),
-    home = document.getElementById("home"),
-    viewer = document.getElementById("viewer-holder"),
-    viewerTitle = document.getElementById("viewer-title"),
-    panelImg = document.getElementById("viewer-panel"),
-    prevBtn = document.getElementById("prev-button"),
-    nextBtn = document.getElementById("next-button"),
-    backBtn = document.getElementById("back-button"),
-    viewerPanelContainer = document.getElementById("viewer-panel-container");
+      home = document.getElementById("home"),
+      viewer = document.getElementById("viewer-holder"),
+      viewerTitle = document.getElementById("viewer-title"),
+      panelImg = document.getElementById("viewer-panel"),
+      prevBtn = document.getElementById("prev-button"),
+      nextBtn = document.getElementById("next-button"),
+      backBtn = document.getElementById("back-button"),
+      viewerPanelContainer = document.getElementById("viewer-panel-container");
 
 function updateIcons() {
-    if (!box) return;
-    box.innerHTML = "";
-
-    cgs.forEach(comic => {
-        const a = document.createElement("a");
-        a.href = "#";
-        a.className = "grid-thing";
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.src = comic.thumbnail;
-        img.alt = comic.name;
-        const p = document.createElement("p");
-        p.textContent = comic.name;
-        a.append(img, p);
-
-        a.addEventListener("click", e => {
-            e.preventDefault();
-            startViewing(comic.id);
-        });
-        box.appendChild(a);
+  if (!box) return;
+  box.innerHTML = "";
+  cgs.forEach(comic => {
+    const a = document.createElement("a");
+    a.href = "#";
+    a.className = "grid-thing";
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = comic.thumbnail;
+    img.alt = comic.name;
+    const p = document.createElement("p");
+    p.textContent = comic.name;
+    a.append(img, p);
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      startViewing(comic.id);
     });
+    box.appendChild(a);
+    // Preload thumbnail
+    cacheImage(comic.thumbnail);
+  });
 }
 
 function startViewing(id) {
-    currentComic = cgs.find(c => c.id === id);
-    if (!currentComic) return alert("Comic not found!");
-    currentPanelIndex = 0;
-    viewerTitle.textContent = currentComic.name;
-    home.classList.add("hidden");
-    viewer.classList.remove("hidden");
-    showPanel(currentPanelIndex);
+  currentComic = cgs.find(c => c.id === id);
+  if (!currentComic) return alert("Comic not found!");
+  currentPanelIndex = 0;
+  viewerTitle.textContent = currentComic.name;
+  home.classList.add("hidden");
+  viewer.classList.remove("hidden");
+  showPanel(currentPanelIndex);
 }
 
 function showPanel(i) {
-    if (!currentComic || !panelImg || !viewerPanelContainer) return;
-    if (i < 0 || i >= currentComic.panels.length) return;
-    prevBtn.disabled = nextBtn.disabled = true;
-    viewerPanelContainer.setAttribute("data-loading", "true");
+  if (!currentComic || !panelImg || !viewerPanelContainer) return;
+  if (i < 0 || i >= currentComic.panels.length) return;
+  prevBtn.disabled = nextBtn.disabled = true;
+  viewerPanelContainer.setAttribute("data-loading", "true");
+  const url = currentComic.panels[i];
+
+  // Use cache if available
+  if (imageCache.has(url)) {
+    panelImg.src = url;
+    panelImg.alt = `${currentComic.name} - Panel ${i+1}`;
+    viewerPanelContainer.removeAttribute("data-loading");
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === currentComic.panels.length - 1;
+  } else {
     const tempImg = new Image();
-    tempImg.src = currentComic.panels[i];
-
+    tempImg.src = url;
     tempImg.onload = () => {
-        panelImg.src = tempImg.src;
-        panelImg.alt = `${currentComic.name} - Panel ${i+1}`;
-        viewerPanelContainer.removeAttribute("data-loading");
-        prevBtn.disabled = i === 0;
-        nextBtn.disabled = i === currentComic.panels.length - 1;
+      imageCache.set(url, tempImg);
+      panelImg.src = url;
+      panelImg.alt = `${currentComic.name} - Panel ${i+1}`;
+      viewerPanelContainer.removeAttribute("data-loading");
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === currentComic.panels.length - 1;
     };
-
     tempImg.onerror = () => {
-        viewerPanelContainer.removeAttribute("data-loading");
-        alert("Failed to load image.");
-        prevBtn.disabled = i === 0;
-        nextBtn.disabled = i === currentComic.panels.length - 1;
+      viewerPanelContainer.removeAttribute("data-loading");
+      alert("Failed to load image.");
+      prevBtn.disabled = i === 0;
+      nextBtn.disabled = i === currentComic.panels.length - 1;
     };
+  }
+
+  // Preload next and previous panels
+  if (currentComic.panels[i + 1]) cacheImage(currentComic.panels[i + 1]);
+  if (currentComic.panels[i - 1]) cacheImage(currentComic.panels[i - 1]);
+}
+
+function cacheImage(url) {
+  if (!imageCache.has(url)) {
+    const img = new Image();
+    img.src = url;
+    img.onload = () => imageCache.set(url, img);
+  }
 }
 
 function backToHome() {
-    home.classList.remove("hidden");
-    viewer.classList.add("hidden");
-    currentComic = null;
-    currentPanelIndex = 0;
-    panelImg.src = "";
-    viewerTitle.textContent = "";
+  home.classList.remove("hidden");
+  viewer.classList.add("hidden");
+  currentComic = null;
+  currentPanelIndex = 0;
+  panelImg.src = "";
+  viewerTitle.textContent = "";
 }
 
 function prevPanel() {
-    if (currentPanelIndex > 0) showPanel(--currentPanelIndex);
+  if (currentPanelIndex > 0) showPanel(--currentPanelIndex);
 }
 
 function nextPanel() {
-    if (currentComic && currentPanelIndex < currentComic.panels.length - 1) showPanel(++currentPanelIndex);
+  if (currentComic && currentPanelIndex < currentComic.panels.length - 1) showPanel(++currentPanelIndex);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    updateIcons();
-    if (panelImg) panelImg.loading = "lazy";
-    backBtn?.addEventListener("click", backToHome);
-    prevBtn?.addEventListener("click", prevPanel);
-    nextBtn?.addEventListener("click", nextPanel);
+  updateIcons();
+  if (panelImg) panelImg.loading = "lazy";
+  backBtn?.addEventListener("click", backToHome);
+  prevBtn?.addEventListener("click", prevPanel);
+  nextBtn?.addEventListener("click", nextPanel);
 });
