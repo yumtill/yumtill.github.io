@@ -1,0 +1,64 @@
+body {
+  text-align: center;
+  margin: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+#comic-holder {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 0px;
+    grid-auto-rows: 1fr;
+}
+
+#comic-holder a {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
+  border: 1px inset black;
+  max-width: 150px;
+  cursor: pointer;
+  text-decoration: none;
+  color: black;
+}
+
+#comic-holder img {
+  max-width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto 5px auto;
+}
+
+#viewer-holder {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#viewer-panel-container {
+  margin: 20px 0;
+}
+
+#viewer-panel {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+}
+
+#viewer-controls button,
+#back-button {
+  margin: 5px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#viewer-panel-container[data-loading="true"]::after {
+  content: "Loading...";
+  display: block;
+  font-style: italic;
+  color: #666;
+  margin-top: 10px;
+}
