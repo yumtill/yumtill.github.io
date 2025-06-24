@@ -28,8 +28,8 @@ body {
 }
 
 #comic-holder img {
-  width: 150px;       /* fixed width */
-  height: 180px;      /* fixed height */
+  width: 150px;     
+  height: 180px;  
   object-fit: cover;
   border-radius: 4px;
   margin-bottom: 8px;
