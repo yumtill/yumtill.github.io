@@ -124,11 +124,9 @@ nextBtn.addEventListener("click", () => {
 
 backBtn.addEventListener("click", () => {
     if (!viewerPanelContainer.classList.contains("hidden")) {
-        // If viewing comic panel, go back to comic list
         viewerPanelContainer.classList.add("hidden");
         comicHolder.classList.remove("hidden");
     } else {
-        // If on comic list, go back to home (artist list)
         showHome();
     }
 });
@@ -141,9 +139,8 @@ artistList.addEventListener("click", e => {
     loadArtistComics(artistId);
 });
 
-// Arrow key navigation for comic panels
 window.addEventListener("keydown", e => {
-    if (viewerPanelContainer.classList.contains("hidden")) return; // Only if viewing panel
+    if (viewerPanelContainer.classList.contains("hidden")) return;
     if (e.key === "ArrowLeft") {
         prevBtn.click();
     } else if (e.key === "ArrowRight") {
