@@ -4,14 +4,15 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
+
 #comic-holder {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-gap: 0px;
-    grid-auto-rows: 1fr;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 0px;
+  grid-auto-rows: 1fr;
 }
 
 #comic-holder a {
@@ -23,13 +24,17 @@ body {
   cursor: pointer;
   text-decoration: none;
   color: black;
+  border-radius: 10px;
 }
 
 #comic-holder img {
-  max-width: 150px;
-  height: auto;
-  display: block;
-  margin: 0 auto 5px auto;
+  width: 150px;       /* fixed width */
+  height: 180px;      /* fixed height */
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  user-select: none;
+  pointer-events: none;
 }
 
 #viewer-holder {
@@ -52,7 +57,14 @@ body {
   margin: 5px;
   padding: 8px 16px;
   font-size: 1rem;
+  outline-width: 1px;
+  outline-color: black;
+  outline-style: solid;
+  background-color: white;
+  color: black;
   cursor: pointer;
+  border-radius: 20px;
+  border-style: none;
 }
 
 #viewer-panel-container[data-loading="true"]::after {
